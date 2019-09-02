@@ -2,6 +2,7 @@ pragma solidity ^0.5.0;
 
 import './SafeMath.sol';
 import './Interfaces.sol';
+// import './Token.sol';
 
 
 contract Owned {
@@ -108,69 +109,84 @@ contract MeerBank is Token {
         address token;
         uint256 createdAt;
         uint256 balance;
-        uint256[4] interest;
+        uint256 interest;
+        uint256 cycle;
     }
     
     struct Interest {
-        uint256 m1;
-        uint256 m3;
-        uint256 m6;
-        uint256 m9;
-        bool open;
+        uint256[3] inter;
+        TokenType open;
         uint256 decimals;
+        uint256 minAmount;
     }
     
-    mapping(address => OrderList) public orderList;
+    enum TokenType { open, close }
+    
+    enum InterestcCycle { 
+        // OneMonth, 
+        ThreeMonth, 
+        SixMonth, 
+        // NineMonth, 
+        OneYears
+    }
+    
+    // uint256[3] InterestcTime = [
+    //     // 30 days, 
+    //     90 days, 
+    //     180 days, 
+    //     // 270 days, 
+    //     365 days
+    // ];
+    
+    // test
+    uint256[3] InterestcTime = [
+        // 30 days, 
+        30, 
+        60, 
+        // 270 days, 
+        120
+    ];
+    
+    mapping(address => OrderList[]) public orderList;
     mapping(address => Interest) public interest;
-    mapping(address => uint256) public rate;
     
     constructor () public {
-        name = 'meererc20';
-        symbol = 'tmeer';
-        decimals = 8;
+        name = 'hlc-interest';
+        symbol = 'ihlc';
+        decimals = 18;
     }
-    // function 
-    event Burned(address burner, uint burnedAmount);
-
-    function burn(uint burnAmount) internal {
-        address burner = msg.sender;
-        balances[burner] = balances[burner].sub(burnAmount);
-        totalSupply = totalSupply.sub(burnAmount);
-        emit Burned(burner, burnAmount);
-    }
-    
+   
     event Pledge(address token, address _creditor, uint256 _value);
-    function pledge( address _creditor, uint256 _value, address _token) public onlyOwner( _creditor ) {
-        require(orderList[_creditor].balance == 0);
-        require(interest[_token].open == true);
+    function pledge( address _creditor, uint256 _value, address _token, InterestcCycle _cycle  ) public onlyOwner( _creditor ) {
+        require(interest[_token].open == TokenType.open);
+        require(interest[_token].minAmount <= _value);
         require(ERC20(_token).transferFrom( _creditor, address(this), _value), 'transferFrom erro');
-        orderList[_creditor] = OrderList(
-            _token,
-            now,
-            _value,
-            [
-                interest[_token].m1, 
-                interest[_token].m3, 
-                interest[_token].m6, 
-                interest[_token].m9
-            ]
+        orderList[_creditor].push(
+            OrderList(
+                _token,
+                now,
+                _value,
+                interest[_token].inter[uint256(_cycle)],
+                InterestcTime[uint256(_cycle)]
+            )
         );
         emit Pledge( _token, _creditor, _value);
     }
     
     event Redemption(address _creditor, address _token, uint256 _value);
     
-    function redemption( address _creditor ) public onlyOwner( _creditor ) {
-        OrderList memory order = orderList[_creditor];
+    function redemption( address _creditor, uint256 _id ) public onlyOwner( _creditor ) {
+        OrderList memory order = orderList[_creditor][_id];
         require(order.balance > 0, 'balance low');
-        settlement( _creditor );
+        require(now > order.createdAt.add(order.cycle));
+        settlement( _creditor, _id );
         ERC20(order.token).transfer(_creditor, order.balance);
-        delete orderList[_creditor];
+        delete orderList[_creditor][_id];
         emit Redemption( _creditor, order.token, order.balance);
     }
     
-    function settlement( address _creditor ) internal {
-        uint256 meer = calculatingInterest( _creditor );
+    function settlement( address _creditor, uint256 _id ) internal {
+        uint256 meer = calculatingInterest( _creditor, _id );
         require( meer > 0);
         totalSupply = totalSupply.add(meer);
         balances[_creditor] = balances[_creditor].add(meer);
@@ -178,48 +194,30 @@ contract MeerBank is Token {
     
     
     event LogsNum( string s, uint u);
-    function setInterest( address _token, uint256[4] memory inters, bool _open ) public only(owner) {
-        interest[_token].m1 = inters[0];
-        interest[_token].m3 = inters[1];
-        interest[_token].m6 = inters[2];
-        interest[_token].m9 = inters[3];
+    function setInterest( address _token, uint256[3] memory inters, TokenType _open, uint256 minAmount ) public only(owner) {
+        interest[_token].inter = inters;
         interest[_token].open = _open;
         interest[_token].decimals = ERC20(_token).decimals();
+        interest[_token].minAmount = minAmount;
     }
     
-    function calculatingInterest( address _creditor ) view public returns( uint256 ) {
-        OrderList memory order = orderList[_creditor];
+    function calculatingInterest( address _creditor, uint256 _id ) view public returns( uint256 ) {
+        OrderList memory order = orderList[_creditor][_id];
         Interest memory token = interest[order.token];
-        uint256 time = now.sub( order.createdAt );
         uint256 inters = 0;
-        
-        // if ( time >= 270 days )
-        //     inters = order.interest[3];
-        // else if ( time >= 180 days ) 
-        //     inters = order.interest[2];
-        // else if ( time > 90 days ) 
-        //     inters = order.interest[1];
-        // else if ( time > 30 days ) 
-        //     inters = order.interest[0];
-        
-        // test
-        if ( time >= 270 )
-            inters = order.interest[3];
-        else if ( time >= 180 ) 
-            inters = order.interest[2];
-        else if ( time > 90 ) 
-            inters = order.interest[1];
-        else if ( time > 30 ) 
-            inters = order.interest[0];
-        
+        if ( now > order.createdAt.add(order.cycle))
+            inters = order.interest;
         uint256 Meer = order.balance.mul(inters).mul(10**decimals).div(10**token.decimals).div(10000);
         return Meer;
     }
     
-    function accountOverview( address _creditor ) view public returns( uint256 ,uint256 token, uint256 Meer,uint256[4] memory interests ) {
-        OrderList memory order = orderList[_creditor];
-        uint256 time = now.sub( order.createdAt );
-        return (time, order.balance , calculatingInterest( _creditor ), order.interest );
-    }
+    // function accountOverview( address _creditor, uint256 _id ) view public returns( uint256, uint256 ,uint256 token, uint256 Meer,uint256 interests ) {
+    //     OrderList memory order = orderList[_creditor][_id];
+    //     return (order.createdAt, order.cycle, order.balance , calculatingInterest( _creditor, _id ), order.interest );
+    // }
     
+    
+    function countOrder( address _creditor ) view public returns(uint256) {
+        return orderList[_creditor].length;
+    }
 }
