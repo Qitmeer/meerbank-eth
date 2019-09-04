@@ -7,7 +7,7 @@ The smart contract of the Qitmeer on the Ethereum network
 
 You can deposit your erc20 tokens in the `meerbank` contract and return the contract to IHLC as interest, provided that your erc20 tokens are configured in the `meerbank` contract.
 
-test addres：[baankContract](https://ropsten.etherscan.io/address/0x9989bb34ad56e631164a1956209257a6509dfb97)
+test address：[bankContract](https://ropsten.etherscan.io/address/0x9989bb34ad56e631164a1956209257a6509dfb97)
 
 ## Contract Interface
 
