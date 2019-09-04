@@ -15,5 +15,11 @@
   "bugs": {
     "url": "https://github.com/zhangyi999/meerbank/issues"
   },
-  "homepage": "https://github.com/zhangyi999/meerbank#readme"
+  "homepage": "https://github.com/zhangyi999/meerbank#readme",
+  "dependencies": {
+    "bignumber.js": "^9.0.0",
+    "ethereum-input-data-decoder": "^0.2.0",
+    "ethereumjs-tx": "^2.1.1",
+    "web3": "^1.2.1"
+  }
 }
