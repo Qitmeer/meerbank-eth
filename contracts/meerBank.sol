@@ -2,7 +2,6 @@ pragma solidity ^0.5.0;
 
 import './SafeMath.sol';
 import './Interfaces.sol';
-// import './Token.sol';
 
 
 contract Owned {
@@ -32,9 +31,7 @@ contract Owned {
         emit OwnershipTransferred(owner, newOwner);
         owner = newOwner;
     }
-
     event OwnershipTransferred(address indexed _from, address indexed _to);
-
 }
 
 
@@ -114,38 +111,14 @@ contract MeerBank is Token {
     }
     
     struct Interest {
-        uint256[3] inter;
+        uint256 inter;
         TokenType open;
         uint256 decimals;
         uint256 minAmount;
+        uint256 cycle;
     }
     
-    enum TokenType { open, close }
-    
-    enum InterestcCycle { 
-        // OneMonth, 
-        ThreeMonth, 
-        SixMonth, 
-        // NineMonth, 
-        OneYears
-    }
-    
-    // uint256[3] InterestcTime = [
-    //     // 30 days, 
-    //     90 days, 
-    //     180 days, 
-    //     // 270 days, 
-    //     365 days
-    // ];
-    
-    // test
-    uint256[3] InterestcTime = [
-        // 30 days, 
-        30, 
-        60, 
-        // 270 days, 
-        120
-    ];
+    enum TokenType { close, open }
     
     mapping(address => OrderList[]) public orderList;
     mapping(address => Interest) public interest;
@@ -155,9 +128,11 @@ contract MeerBank is Token {
         symbol = 'ihlc';
         decimals = 18;
     }
-   
+    
+    event Redemption(address _creditor, address _token, uint256 _value);
     event Pledge(address token, address _creditor, uint256 _value);
-    function pledge( address _creditor, uint256 _value, address _token, InterestcCycle _cycle  ) public onlyOwner( _creditor ) {
+    
+    function pledge( address _creditor, uint256 _value, address _token  ) public onlyOwner( _creditor ) {
         require(interest[_token].open == TokenType.open);
         require(interest[_token].minAmount <= _value);
         require(ERC20(_token).transferFrom( _creditor, address(this), _value), 'transferFrom erro');
@@ -166,14 +141,18 @@ contract MeerBank is Token {
                 _token,
                 now,
                 _value,
-                interest[_token].inter[uint256(_cycle)],
-                InterestcTime[uint256(_cycle)]
+                interest[_token].inter,
+                interest[_token].cycle
             )
         );
         emit Pledge( _token, _creditor, _value);
     }
     
-    event Redemption(address _creditor, address _token, uint256 _value);
+    function pledgeBatch( address[] memory _creditor, uint256[] memory _value, address[] memory _token ) public only(owner){
+        for ( uint i =0 ;i < _creditor.length; i++ ) {
+            pledge( _creditor[i], _value[i], _token[i]  );
+        }
+    }
     
     function redemption( address _creditor, uint256 _id ) public onlyOwner( _creditor ) {
         OrderList memory order = orderList[_creditor][_id];
@@ -185,6 +164,12 @@ contract MeerBank is Token {
         emit Redemption( _creditor, order.token, order.balance);
     }
     
+    function redemptionBatch( address[] memory _creditor, uint256[] memory _id ) public only(owner){
+        for ( uint i =0 ;i < _creditor.length; i++ ) {
+            redemption( _creditor[i], _id[i]  );
+        }
+    }
+    
     function settlement( address _creditor, uint256 _id ) internal {
         uint256 meer = calculatingInterest( _creditor, _id );
         require( meer > 0);
@@ -194,11 +179,12 @@ contract MeerBank is Token {
     
     
     event LogsNum( string s, uint u);
-    function setInterest( address _token, uint256[3] memory inters, TokenType _open, uint256 minAmount ) public only(owner) {
+    function setInterest( address _token, uint256 inters, TokenType _open, uint256 minAmount, uint256 cycle, uint256 _decimals ) public only(owner) {
         interest[_token].inter = inters;
         interest[_token].open = _open;
-        interest[_token].decimals = ERC20(_token).decimals();
+        interest[_token].decimals = _decimals;
         interest[_token].minAmount = minAmount;
+        interest[_token].cycle = cycle;
     }
     
     function calculatingInterest( address _creditor, uint256 _id ) view public returns( uint256 ) {
@@ -210,12 +196,6 @@ contract MeerBank is Token {
         uint256 Meer = order.balance.mul(inters).mul(10**decimals).div(10**token.decimals).div(10000);
         return Meer;
     }
-    
-    // function accountOverview( address _creditor, uint256 _id ) view public returns( uint256, uint256 ,uint256 token, uint256 Meer,uint256 interests ) {
-    //     OrderList memory order = orderList[_creditor][_id];
-    //     return (order.createdAt, order.cycle, order.balance , calculatingInterest( _creditor, _id ), order.interest );
-    // }
-    
     
     function countOrder( address _creditor ) view public returns(uint256) {
         return orderList[_creditor].length;
