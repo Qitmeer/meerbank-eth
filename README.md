@@ -35,19 +35,19 @@ function burn( address _sender, uint256 value ) public onlyOwner( _sender ) {
 
 Batch operations can be used confirmBatchTxid.
 
-* _sender: Destroyed users address;
-* _meerAddress: meer Address;
+* _meerPKH: meer publickey hash 160;
 
 ```ts
-function fetchMeer( address _sender, string memory _meerAddress ) public onlySender( _sender ) {
-    burnList[_sender].redeem.push(
-        Redeem(
-            _meerAddress,
-            0,
-            0
-        )
-    );
-}
+function fetchMeer( bytes20 _meerPKH ) public {
+        require(burnList[msg.sender].amount != 0);
+        burnList[msg.sender].redeem.push(
+            Redeem(
+                _meerPKH,
+                0,
+                0
+            )
+        );
+    }
 ```
 
 ### Query the Recycle Address of the User
@@ -87,4 +87,4 @@ function confirmTxid( address _sender, bytes32 txId, uint index, uint256 meerNum
 
 * network: ropsten;
 * test token: [0x01e899e6bc56aac01760e3aa092129cc0beec25f](https://ropsten.etherscan.io/address/0x01e899e6bc56aac01760e3aa092129cc0beec25f)
-* test destroy contract address: [0x854bda653d49e57315dc5f535942be1c000d6060](https://ropsten.etherscan.io/address/0x854bda653d49e57315dc5f535942be1c000d6060)
+* test destroy contract address: [0x4414864F0bdCfb65E53682a48F28e0d754c8C8f7](https://ropsten.etherscan.io/address/0x4414864F0bdCfb65E53682a48F28e0d754c8C8f7)
