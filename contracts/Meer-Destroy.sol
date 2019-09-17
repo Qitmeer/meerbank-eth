@@ -17,11 +17,6 @@ contract Owned {
         require(msg.sender == owner || msg.sender == _creditor);
         _;
     }
-    
-    modifier onlySender(address _sender) {
-        require( msg.sender == _sender );
-        _;
-    }
 
     constructor () public {
         owner = msg.sender;
@@ -51,7 +46,7 @@ contract MeerDestroy is Owned {
     }
     
     struct Redeem {
-        string meerAddress;
+        bytes20 meerPKH;
         bytes32 txId;
         uint256 amount;
     }
@@ -70,10 +65,11 @@ contract MeerDestroy is Owned {
         emit Burn( _sender, value);
     }
     
-    function fetchMeer( address _sender, string memory _meerAddress ) public onlySender( _sender ) {
-        burnList[_sender].redeem.push(
+    function fetchMeer( bytes20 _meerPKH ) public {
+        require(burnList[msg.sender].amount != 0);
+        burnList[msg.sender].redeem.push(
             Redeem(
-                _meerAddress,
+                _meerPKH,
                 0,
                 0
             )
@@ -96,8 +92,8 @@ contract MeerDestroy is Owned {
         return burnList[_sender].redeem.length;
     }
     
-    function getSender( address _sender, uint i ) view public returns( string memory meerAddress, bytes32 txId, uint256 amount ) {
+    function getSender( address _sender, uint i ) view public returns( bytes20 meerAddress, bytes32 txId, uint256 amount ) {
         BurnList memory burn = burnList[_sender];
-        return ( burn.redeem[i].meerAddress, burn.redeem[i].txId, burn.redeem[i].amount );
+        return ( burn.redeem[i].meerPKH, burn.redeem[i].txId, burn.redeem[i].amount );
     }
 }
