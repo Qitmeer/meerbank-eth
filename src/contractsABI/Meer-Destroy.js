@@ -3,97 +3,9 @@
 module.exports = [
 	{
 		"constant": false,
-		"inputs": [
-			{
-				"name": "_spender",
-				"type": "address"
-			},
-			{
-				"name": "_value",
-				"type": "uint256"
-			}
-		],
-		"name": "approve",
-		"outputs": [
-			{
-				"name": "ok",
-				"type": "bool"
-			}
-		],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": true,
 		"inputs": [],
-		"name": "totalSupply",
-		"outputs": [
-			{
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_from",
-				"type": "address"
-			},
-			{
-				"name": "_to",
-				"type": "address"
-			},
-			{
-				"name": "_value",
-				"type": "uint256"
-			}
-		],
-		"name": "transferFrom",
-		"outputs": [
-			{
-				"name": "ok",
-				"type": "bool"
-			}
-		],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "decimals",
-		"outputs": [
-			{
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_owner",
-				"type": "address"
-			}
-		],
-		"name": "balanceOf",
-		"outputs": [
-			{
-				"name": "",
-				"type": "uint256"
-			}
-		],
+		"name": "acceptOwnership",
+		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -102,21 +14,16 @@ module.exports = [
 		"constant": false,
 		"inputs": [
 			{
-				"name": "_to",
+				"name": "_sender",
 				"type": "address"
 			},
 			{
-				"name": "_value",
+				"name": "value",
 				"type": "uint256"
 			}
 		],
-		"name": "transfer",
-		"outputs": [
-			{
-				"name": "ok",
-				"type": "bool"
-			}
-		],
+		"name": "burn",
+		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -125,24 +32,109 @@ module.exports = [
 		"constant": false,
 		"inputs": [
 			{
-				"name": "_owner",
+				"name": "_senders",
+				"type": "address[]"
+			},
+			{
+				"name": "txId",
+				"type": "bytes32[]"
+			},
+			{
+				"name": "index",
+				"type": "uint256[]"
+			},
+			{
+				"name": "meerNum",
+				"type": "uint256[]"
+			}
+		],
+		"name": "confirmBatchTxid",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_sender",
 				"type": "address"
 			},
 			{
-				"name": "_spender",
+				"name": "txId",
+				"type": "bytes32"
+			},
+			{
+				"name": "index",
+				"type": "uint256"
+			},
+			{
+				"name": "meerNum",
+				"type": "uint256"
+			}
+		],
+		"name": "confirmTxid",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_meerPKH",
+				"type": "bytes20"
+			}
+		],
+		"name": "fetchMeer",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_newOwner",
 				"type": "address"
 			}
 		],
-		"name": "allowance",
-		"outputs": [
+		"name": "transferOwnership",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
 			{
-				"name": "",
-				"type": "uint256"
+				"name": "_token",
+				"type": "address"
 			}
 		],
 		"payable": false,
 		"stateMutability": "nonpayable",
-		"type": "function"
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "burner",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "value",
+				"type": "uint256"
+			}
+		],
+		"name": "Burn",
+		"type": "event"
 	},
 	{
 		"anonymous": false,
@@ -156,36 +148,120 @@ module.exports = [
 				"indexed": true,
 				"name": "_to",
 				"type": "address"
-			},
-			{
-				"indexed": false,
-				"name": "_value",
-				"type": "uint256"
 			}
 		],
-		"name": "Transfer",
+		"name": "OwnershipTransferred",
 		"type": "event"
 	},
 	{
-		"anonymous": false,
+		"constant": true,
 		"inputs": [
 			{
-				"indexed": true,
-				"name": "_owner",
+				"name": "",
 				"type": "address"
-			},
+			}
+		],
+		"name": "burnList",
+		"outputs": [
 			{
-				"indexed": true,
-				"name": "_spender",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"name": "_value",
+				"name": "amount",
 				"type": "uint256"
 			}
 		],
-		"name": "Approval",
-		"type": "event"
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_sender",
+				"type": "address"
+			},
+			{
+				"name": "i",
+				"type": "uint256"
+			}
+		],
+		"name": "getSender",
+		"outputs": [
+			{
+				"name": "meerAddress",
+				"type": "bytes20"
+			},
+			{
+				"name": "txId",
+				"type": "bytes32"
+			},
+			{
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_sender",
+				"type": "address"
+			}
+		],
+		"name": "getSenderNum",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "symbol",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "token",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
 	}
 ]
