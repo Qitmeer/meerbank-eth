@@ -92,7 +92,7 @@ contract MeerDestroy is Owned {
         return burnList[_sender].redeem.length;
     }
     
-    function getSender( address _sender, uint i ) view public returns( bytes20 meerAddress, bytes32 txId, uint256 amount ) {
+    function getSender( address _sender, uint i ) view public returns( bytes20 meerPublickeyHash, bytes32 txId, uint256 amount ) {
         BurnList memory burn = burnList[_sender];
         return ( burn.redeem[i].meerPKH, burn.redeem[i].txId, burn.redeem[i].amount );
     }

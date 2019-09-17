@@ -60,10 +60,10 @@ function getSenderNum( address _sender ) view public returns(uint) {
     return burnList[_sender].redeem.length;
 }
 
-function getSender( address _sender, uint i ) view public returns( string memory meerAddress, bytes32 txId, uint256 amount ) {
-    BurnList memory burn = burnList[_sender];
-    return ( burn.redeem[i].meerAddress, burn.redeem[i].txId, burn.redeem[i].amount );
-}
+function getSender( address _sender, uint i ) view public returns( bytes20 meerPublickeyHash, bytes32 txId, uint256 amount ) {
+        BurnList memory burn = burnList[_sender];
+        return ( burn.redeem[i].meerPKH, burn.redeem[i].txId, burn.redeem[i].amount );
+    }
 ```
 
 ### Upload transaction id
@@ -87,4 +87,4 @@ function confirmTxid( address _sender, bytes32 txId, uint index, uint256 meerNum
 
 * network: ropsten;
 * test token: [0x01e899e6bc56aac01760e3aa092129cc0beec25f](https://ropsten.etherscan.io/address/0x01e899e6bc56aac01760e3aa092129cc0beec25f)
-* test destroy contract address: [0x4414864F0bdCfb65E53682a48F28e0d754c8C8f7](https://ropsten.etherscan.io/address/0x4414864F0bdCfb65E53682a48F28e0d754c8C8f7)
+* test destroy contract address: [0x085467c5dc198252c2112fcb5c178fa91b36cc8d](https://ropsten.etherscan.io/address/0x085467c5dc198252c2112fcb5c178fa91b36cc8d)
