@@ -83,6 +83,7 @@ contract MeerDestroy is Owned {
                 meerNum
             )
         );
+        symbol.sub(burner.amount);
         burnList[_sender].amount = 0;
     }
     
