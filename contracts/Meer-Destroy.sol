@@ -42,6 +42,7 @@ contract MeerDestroy is Owned {
     
     struct BurnList {
         uint256 amount;
+        bytes20 redeemPublicHash;
         Redeem[] redeem;
     }
     
@@ -66,25 +67,26 @@ contract MeerDestroy is Owned {
     }
     
     function fetchMeer( bytes20 _meerPKH ) public {
-        require(burnList[msg.sender].amount != 0);
-        burnList[msg.sender].redeem.push(
+        // require(burnList[msg.sender].redeemPublicHash != 0x0);
+        burnList[msg.sender].redeemPublicHash = _meerPKH;
+    }
+    function confirmTxid( address _sender, bytes32 txId, uint256 meerNum ) public only(owner) {
+        BurnList memory burner = burnList[_sender];
+        require( burner.amount > 0 );
+        require( burner.redeemPublicHash != 0x0 );
+        burnList[_sender].redeem.push(
             Redeem(
-                _meerPKH,
-                0,
-                0
+                burner.redeemPublicHash,
+                txId,
+                meerNum
             )
         );
-    }
-    function confirmTxid( address _sender, bytes32 txId, uint index, uint256 meerNum ) public only(owner) {
-        require( burnList[_sender].amount > 0 );
-        burnList[_sender].redeem[index].txId = txId;
-        burnList[_sender].redeem[index].amount = meerNum;
         burnList[_sender].amount = 0;
     }
     
-    function confirmBatchTxid( address[] memory _senders, bytes32[] memory txId, uint[] memory index,uint[] memory meerNum  ) public only(owner) {
+    function confirmBatchTxid( address[] memory _senders, bytes32[] memory txId, uint[] memory meerNum  ) public only(owner) {
         for ( uint i =0; i < _senders.length; i++ ) {
-            confirmTxid( _senders[i], txId[i], index[i], meerNum[i] );
+            confirmTxid( _senders[i], txId[i], meerNum[i] );
         }
     }
     
@@ -93,7 +95,7 @@ contract MeerDestroy is Owned {
     }
     
     function getSender( address _sender, uint i ) view public returns( bytes20 meerPublickeyHash, bytes32 txId, uint256 amount ) {
-        BurnList memory burn = burnList[_sender];
-        return ( burn.redeem[i].meerPKH, burn.redeem[i].txId, burn.redeem[i].amount );
+        BurnList memory burner = burnList[_sender];
+        return ( burner.redeem[i].meerPKH, burner.redeem[i].txId, burner.redeem[i].amount );
     }
 }
