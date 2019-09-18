@@ -58,6 +58,7 @@ contract MeerDestroy is Owned {
     }
     
     event Burn(address burner, uint256 value);
+    event FetchMeer(address burner, bytes20 _meerPKH);
     
     function burn( address _sender, uint256 value ) public onlyOwner( _sender ) {
         require(ERC20(token).transferFrom( _sender, address(this), value), 'transferFrom erro');
@@ -69,6 +70,7 @@ contract MeerDestroy is Owned {
     function fetchMeer( bytes20 _meerPKH ) public {
         // require(burnList[msg.sender].redeemPublicHash != 0x0);
         burnList[msg.sender].redeemPublicHash = _meerPKH;
+        emit FetchMeer( msg.sender, _meerPKH );
     }
     function confirmTxid( address _sender, bytes32 txId, uint256 meerNum ) public only(owner) {
         BurnList memory burner = burnList[_sender];
