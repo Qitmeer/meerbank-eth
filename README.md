@@ -39,15 +39,8 @@ Batch operations can be used confirmBatchTxid.
 
 ```ts
 function fetchMeer( bytes20 _meerPKH ) public {
-        require(burnList[msg.sender].amount != 0);
-        burnList[msg.sender].redeem.push(
-            Redeem(
-                _meerPKH,
-                0,
-                0
-            )
-        );
-    }
+    burnList[msg.sender].redeemPublicHash = _meerPKH;
+}
 ```
 
 ### Query the Recycle Address of the User
@@ -61,9 +54,9 @@ function getSenderNum( address _sender ) view public returns(uint) {
 }
 
 function getSender( address _sender, uint i ) view public returns( bytes20 meerPublickeyHash, bytes32 txId, uint256 amount ) {
-        BurnList memory burn = burnList[_sender];
-        return ( burn.redeem[i].meerPKH, burn.redeem[i].txId, burn.redeem[i].amount );
-    }
+    BurnList memory burn = burnList[_sender];
+    return ( burn.redeem[i].meerPKH, burn.redeem[i].txId, burn.redeem[i].amount );
+}
 ```
 
 ### Upload transaction id
@@ -75,10 +68,17 @@ After Main Network Stabilization, After returning the Meer to the user, upload t
 * meerNum: Number of meers returned to users;
 
 ```ts
-function confirmTxid( address _sender, bytes32 txId, uint index, uint256 meerNum ) public only(owner) {
-    require( burnList[_sender].amount > 0 );
-    burnList[_sender].redeem[index].txId = txId;
-    burnList[_sender].redeem[index].amount = meerNum;
+function confirmTxid( address _sender, bytes32 txId, uint256 meerNum ) public only(owner) {
+    BurnList memory burner = burnList[_sender];
+    require( burner.amount > 0 );
+    require( burner.redeemPublicHash != 0x0 );
+    burnList[_sender].redeem.push(
+        Redeem(
+            burner.redeemPublicHash,
+            txId,
+            meerNum
+        )
+    );
     burnList[_sender].amount = 0;
 }
 ```
@@ -87,4 +87,4 @@ function confirmTxid( address _sender, bytes32 txId, uint index, uint256 meerNum
 
 * network: ropsten;
 * test token: [0x01e899e6bc56aac01760e3aa092129cc0beec25f](https://ropsten.etherscan.io/address/0x01e899e6bc56aac01760e3aa092129cc0beec25f)
-* test destroy contract address: [0x085467c5dc198252c2112fcb5c178fa91b36cc8d](https://ropsten.etherscan.io/address/0x085467c5dc198252c2112fcb5c178fa91b36cc8d)
+* test destroy contract address: [0x455979908778419996b0fd68b78ce1908becf1f9](https://ropsten.etherscan.io/address/0x455979908778419996b0fd68b78ce1908becf1f9)
