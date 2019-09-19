@@ -14,16 +14,21 @@ module.exports = [
 		"constant": false,
 		"inputs": [
 			{
-				"name": "_sender",
+				"name": "_spender",
 				"type": "address"
 			},
 			{
-				"name": "value",
+				"name": "_value",
 				"type": "uint256"
 			}
 		],
-		"name": "burn",
-		"outputs": [],
+		"name": "approve",
+		"outputs": [
+			{
+				"name": "success",
+				"type": "bool"
+			}
+		],
 		"payable": false,
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -32,42 +37,71 @@ module.exports = [
 		"constant": false,
 		"inputs": [
 			{
-				"name": "_senders",
+				"name": "_spender",
+				"type": "address"
+			},
+			{
+				"name": "_currentValue",
+				"type": "uint256"
+			},
+			{
+				"name": "_value",
+				"type": "uint256"
+			}
+		],
+		"name": "approve_fixed",
+		"outputs": [
+			{
+				"name": "success",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_to",
+				"type": "address"
+			},
+			{
+				"name": "_amount",
+				"type": "uint256"
+			}
+		],
+		"name": "mint",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "dests",
 				"type": "address[]"
 			},
 			{
-				"name": "txId",
-				"type": "bytes32[]"
-			},
-			{
-				"name": "meerNum",
+				"name": "values",
 				"type": "uint256[]"
 			}
 		],
-		"name": "confirmBatchTxid",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
+		"name": "multimint",
+		"outputs": [
 			{
-				"name": "_sender",
-				"type": "address"
-			},
-			{
-				"name": "txId",
-				"type": "bytes32"
-			},
-			{
-				"name": "meerNum",
+				"name": "",
 				"type": "uint256"
 			}
 		],
-		"name": "confirmTxid",
-		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -76,12 +110,48 @@ module.exports = [
 		"constant": false,
 		"inputs": [
 			{
-				"name": "_meerPKH",
-				"type": "bytes20"
+				"name": "_to",
+				"type": "address"
+			},
+			{
+				"name": "_value",
+				"type": "uint256"
 			}
 		],
-		"name": "fetchMeer",
-		"outputs": [],
+		"name": "transfer",
+		"outputs": [
+			{
+				"name": "success",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_from",
+				"type": "address"
+			},
+			{
+				"name": "_to",
+				"type": "address"
+			},
+			{
+				"name": "_value",
+				"type": "uint256"
+			}
+		],
+		"name": "transferFrom",
+		"outputs": [
+			{
+				"name": "success",
+				"type": "bool"
+			}
+		],
 		"payable": false,
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -103,8 +173,16 @@ module.exports = [
 	{
 		"inputs": [
 			{
-				"name": "_token",
-				"type": "address"
+				"name": "_name",
+				"type": "string"
+			},
+			{
+				"name": "_symbol",
+				"type": "string"
+			},
+			{
+				"name": "_decimals",
+				"type": "uint8"
 			}
 		],
 		"payable": false,
@@ -116,16 +194,21 @@ module.exports = [
 		"inputs": [
 			{
 				"indexed": true,
-				"name": "burner",
+				"name": "_from",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"name": "_to",
 				"type": "address"
 			},
 			{
 				"indexed": false,
-				"name": "value",
+				"name": "_value",
 				"type": "uint256"
 			}
 		],
-		"name": "Burn",
+		"name": "Transfer",
 		"type": "event"
 	},
 	{
@@ -133,16 +216,55 @@ module.exports = [
 		"inputs": [
 			{
 				"indexed": true,
-				"name": "burner",
+				"name": "_owner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"name": "_spender",
 				"type": "address"
 			},
 			{
 				"indexed": false,
-				"name": "_meerPKH",
-				"type": "bytes20"
+				"name": "_value",
+				"type": "uint256"
 			}
 		],
-		"name": "FetchMeer",
+		"name": "Approval",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "s",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"name": "n",
+				"type": "address"
+			}
+		],
+		"name": "Log",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "s",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"name": "n",
+				"type": "uint256"
+			}
+		],
+		"name": "LogNum",
 		"type": "event"
 	},
 	{
@@ -166,49 +288,18 @@ module.exports = [
 		"constant": true,
 		"inputs": [
 			{
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "burnList",
-		"outputs": [
-			{
-				"name": "amount",
-				"type": "uint256"
-			},
-			{
-				"name": "redeemPublicHash",
-				"type": "bytes20"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "_sender",
+				"name": "_owner",
 				"type": "address"
 			},
 			{
-				"name": "i",
-				"type": "uint256"
+				"name": "_spender",
+				"type": "address"
 			}
 		],
-		"name": "getSender",
+		"name": "allowance",
 		"outputs": [
 			{
-				"name": "meerPublickeyHash",
-				"type": "bytes20"
-			},
-			{
-				"name": "txId",
-				"type": "bytes32"
-			},
-			{
-				"name": "amount",
+				"name": "remaining",
 				"type": "uint256"
 			}
 		],
@@ -220,15 +311,43 @@ module.exports = [
 		"constant": true,
 		"inputs": [
 			{
-				"name": "_sender",
+				"name": "_owner",
 				"type": "address"
 			}
 		],
-		"name": "getSenderNum",
+		"name": "balanceOf",
+		"outputs": [
+			{
+				"name": "balance",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "decimals",
 		"outputs": [
 			{
 				"name": "",
-				"type": "uint256"
+				"type": "uint8"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "name",
+		"outputs": [
+			{
+				"name": "",
+				"type": "string"
 			}
 		],
 		"payable": false,
@@ -256,7 +375,7 @@ module.exports = [
 		"outputs": [
 			{
 				"name": "",
-				"type": "uint256"
+				"type": "string"
 			}
 		],
 		"payable": false,
@@ -266,11 +385,11 @@ module.exports = [
 	{
 		"constant": true,
 		"inputs": [],
-		"name": "token",
+		"name": "totalSupply",
 		"outputs": [
 			{
 				"name": "",
-				"type": "address"
+				"type": "uint256"
 			}
 		],
 		"payable": false,

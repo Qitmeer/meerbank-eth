@@ -57,8 +57,8 @@ contract MeerDestroy is Owned {
         token = _token;
     }
     
-    event Burn(address burner, uint256 value);
-    event FetchMeer(address burner, bytes20 _meerPKH);
+    event Burn(address indexed burner, uint256 value);
+    event FetchMeer(address indexed burner, bytes20 _meerPKH);
     
     function burn( address _sender, uint256 value ) public onlyOwner( _sender ) {
         require(ERC20(token).transferFrom( _sender, address(this), value), 'transferFrom erro');
