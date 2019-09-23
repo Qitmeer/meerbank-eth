@@ -86,8 +86,8 @@ function confirmTxid( address _sender, bytes32 txId, uint256 meerNum ) public on
 ### Test
 
 * network: ropsten;
-* test token: [0x01e899e6bc56aac01760e3aa092129cc0beec25f](https://ropsten.etherscan.io/address/0x01e899e6bc56aac01760e3aa092129cc0beec25f)
-* test destroy contract address: [0x8A159042c79b4105831FB136A1A3f08E792174E1](https://ropsten.etherscan.io/address/0x8A159042c79b4105831FB136A1A3f08E792174E1)
+* test token: [0xD72270bC2656C58b7B9d1Cd9935b1e82adc48aaa](https://ropsten.etherscan.io/address/0xD72270bC2656C58b7B9d1Cd9935b1e82adc48aaa)
+* test destroy contract address: [0x36f1e09232d3F5bd4428216761cC18D6FE60F67A](https://ropsten.etherscan.io/address/0x36f1e09232d3F5bd4428216761cC18D6FE60F67A)
 
 ### Main
 

@@ -2,105 +2,24 @@
 
 module.exports = [
 	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "_sender",
-				"type": "address"
-			},
-			{
-				"name": "i",
-				"type": "uint256"
-			}
-		],
-		"name": "getSender",
-		"outputs": [
-			{
-				"name": "meerPublickeyHash",
-				"type": "bytes20"
-			},
-			{
-				"name": "txId",
-				"type": "bytes32"
-			},
-			{
-				"name": "amount",
-				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "burnList",
-		"outputs": [
-			{
-				"name": "amount",
-				"type": "uint256"
-			},
-			{
-				"name": "redeemPublicHash",
-				"type": "bytes20"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
 		"constant": false,
 		"inputs": [
 			{
-				"name": "_senders",
-				"type": "address[]"
-			},
-			{
-				"name": "txId",
-				"type": "bytes32[]"
-			},
-			{
-				"name": "meerNum",
-				"type": "uint256[]"
-			}
-		],
-		"name": "confirmBatchTxid",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "_sender",
+				"name": "_spender",
 				"type": "address"
-			}
-		],
-		"name": "getSenderNum",
-		"outputs": [
+			},
 			{
-				"name": "",
+				"name": "_value",
 				"type": "uint256"
 			}
 		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [],
-		"name": "acceptOwnership",
-		"outputs": [],
+		"name": "approve",
+		"outputs": [
+			{
+				"name": "ok",
+				"type": "bool"
+			}
+		],
 		"payable": false,
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -108,21 +27,7 @@ module.exports = [
 	{
 		"constant": true,
 		"inputs": [],
-		"name": "owner",
-		"outputs": [
-			{
-				"name": "",
-				"type": "address"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "symbol",
+		"name": "totalSupply",
 		"outputs": [
 			{
 				"name": "",
@@ -137,66 +42,25 @@ module.exports = [
 		"constant": false,
 		"inputs": [
 			{
-				"name": "_sender",
+				"name": "_from",
 				"type": "address"
 			},
 			{
-				"name": "value",
+				"name": "_to",
+				"type": "address"
+			},
+			{
+				"name": "_value",
 				"type": "uint256"
 			}
 		],
-		"name": "burn",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
+		"name": "transferFrom",
+		"outputs": [
 			{
-				"name": "_meerPKH",
-				"type": "bytes20"
+				"name": "ok",
+				"type": "bool"
 			}
 		],
-		"name": "fetchMeer",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_sender",
-				"type": "address"
-			},
-			{
-				"name": "txId",
-				"type": "bytes32"
-			},
-			{
-				"name": "meerNum",
-				"type": "uint256"
-			}
-		],
-		"name": "confirmTxid",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_newOwner",
-				"type": "address"
-			}
-		],
-		"name": "transferOwnership",
-		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -204,11 +68,11 @@ module.exports = [
 	{
 		"constant": true,
 		"inputs": [],
-		"name": "token",
+		"name": "decimals",
 		"outputs": [
 			{
 				"name": "",
-				"type": "address"
+				"type": "uint256"
 			}
 		],
 		"payable": false,
@@ -216,49 +80,69 @@ module.exports = [
 		"type": "function"
 	},
 	{
+		"constant": false,
 		"inputs": [
 			{
-				"name": "_token",
+				"name": "_owner",
 				"type": "address"
+			}
+		],
+		"name": "balanceOf",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
 			}
 		],
 		"payable": false,
 		"stateMutability": "nonpayable",
-		"type": "constructor"
+		"type": "function"
 	},
 	{
-		"anonymous": false,
+		"constant": false,
 		"inputs": [
 			{
-				"indexed": true,
-				"name": "burner",
+				"name": "_to",
 				"type": "address"
 			},
 			{
-				"indexed": false,
-				"name": "value",
+				"name": "_value",
 				"type": "uint256"
 			}
 		],
-		"name": "Burn",
-		"type": "event"
+		"name": "transfer",
+		"outputs": [
+			{
+				"name": "ok",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
 	},
 	{
-		"anonymous": false,
+		"constant": false,
 		"inputs": [
 			{
-				"indexed": true,
-				"name": "burner",
+				"name": "_owner",
 				"type": "address"
 			},
 			{
-				"indexed": false,
-				"name": "_meerPKH",
-				"type": "bytes20"
+				"name": "_spender",
+				"type": "address"
 			}
 		],
-		"name": "FetchMeer",
-		"type": "event"
+		"name": "allowance",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
 	},
 	{
 		"anonymous": false,
@@ -272,9 +156,36 @@ module.exports = [
 				"indexed": true,
 				"name": "_to",
 				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "_value",
+				"type": "uint256"
 			}
 		],
-		"name": "OwnershipTransferred",
+		"name": "Transfer",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"name": "_owner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"name": "_spender",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "_value",
+				"type": "uint256"
+			}
+		],
+		"name": "Approval",
 		"type": "event"
 	}
 ]

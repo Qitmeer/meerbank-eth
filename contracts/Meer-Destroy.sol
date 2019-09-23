@@ -38,6 +38,8 @@ contract MeerDestroy is Owned {
     
     uint256 public symbol;
     address public token;
+    address public constant BURN_ADDRESS = address(0);
+    
     mapping(address => BurnList) public burnList;
     
     struct BurnList {
@@ -61,7 +63,8 @@ contract MeerDestroy is Owned {
     event FetchMeer(address indexed burner, bytes20 _meerPKH);
     
     function burn( address _sender, uint256 value ) public onlyOwner( _sender ) {
-        require(ERC20(token).transferFrom( _sender, address(0), value), 'transferFrom erro');
+        require(ERC20(token).transferFrom( _sender, address(this), value), 'transferFrom erro');
+        require(ERC20(token).transfer( BURN_ADDRESS, value ));
         burnList[_sender].amount = burnList[_sender].amount.add(value);
         symbol = symbol.add(value);
         emit Burn( _sender, value);
