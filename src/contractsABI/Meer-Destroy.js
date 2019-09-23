@@ -2,12 +2,135 @@
 
 module.exports = [
 	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_sender",
+				"type": "address"
+			},
+			{
+				"name": "i",
+				"type": "uint256"
+			}
+		],
+		"name": "getSender",
+		"outputs": [
+			{
+				"name": "meerPublickeyHash",
+				"type": "bytes20"
+			},
+			{
+				"name": "txId",
+				"type": "bytes32"
+			},
+			{
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "burnList",
+		"outputs": [
+			{
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"name": "redeemPublicHash",
+				"type": "bytes20"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_senders",
+				"type": "address[]"
+			},
+			{
+				"name": "txId",
+				"type": "bytes32[]"
+			},
+			{
+				"name": "meerNum",
+				"type": "uint256[]"
+			}
+		],
+		"name": "confirmBatchTxid",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_sender",
+				"type": "address"
+			}
+		],
+		"name": "getSenderNum",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"constant": false,
 		"inputs": [],
 		"name": "acceptOwnership",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "symbol",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -32,19 +155,11 @@ module.exports = [
 		"constant": false,
 		"inputs": [
 			{
-				"name": "_senders",
-				"type": "address[]"
-			},
-			{
-				"name": "txId",
-				"type": "bytes32[]"
-			},
-			{
-				"name": "meerNum",
-				"type": "uint256[]"
+				"name": "_meerPKH",
+				"type": "bytes20"
 			}
 		],
-		"name": "confirmBatchTxid",
+		"name": "fetchMeer",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
@@ -76,20 +191,6 @@ module.exports = [
 		"constant": false,
 		"inputs": [
 			{
-				"name": "_meerPKH",
-				"type": "bytes20"
-			}
-		],
-		"name": "fetchMeer",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
 				"name": "_newOwner",
 				"type": "address"
 			}
@@ -98,6 +199,20 @@ module.exports = [
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "token",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -161,120 +276,5 @@ module.exports = [
 		],
 		"name": "OwnershipTransferred",
 		"type": "event"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "burnList",
-		"outputs": [
-			{
-				"name": "amount",
-				"type": "uint256"
-			},
-			{
-				"name": "redeemPublicHash",
-				"type": "bytes20"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "_sender",
-				"type": "address"
-			},
-			{
-				"name": "i",
-				"type": "uint256"
-			}
-		],
-		"name": "getSender",
-		"outputs": [
-			{
-				"name": "meerPublickeyHash",
-				"type": "bytes20"
-			},
-			{
-				"name": "txId",
-				"type": "bytes32"
-			},
-			{
-				"name": "amount",
-				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "_sender",
-				"type": "address"
-			}
-		],
-		"name": "getSenderNum",
-		"outputs": [
-			{
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "owner",
-		"outputs": [
-			{
-				"name": "",
-				"type": "address"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "symbol",
-		"outputs": [
-			{
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "token",
-		"outputs": [
-			{
-				"name": "",
-				"type": "address"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
 	}
 ]

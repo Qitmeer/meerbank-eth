@@ -1,9 +1,34 @@
 const meerDestroy = require('../src/meerDestroy')
 const meerDestroyAbi = require('../src/contractsABI/Meer-Destroy')
+// require('dotenv').config({ path: '.env' })
 
-const contractAddress = '0x1864f84e43980a77d1d9021dc983d4dc31acbadc'
-const network = 'testnet'
-const Abi = meerDestroyAbi
+const networks =  process.argv[2] || 'testnet'
+
+const config = {
+    testnet: {
+        Abi:meerDestroyAbi, 
+        contractAddress: '0x1864f84e43980a77d1d9021dc983d4dc31acbadc', 
+        network: networks
+    },
+    mainnet: {
+        Abi:meerDestroyAbi, 
+        contractAddress: '0x29adb870085c5b9734947465c551c5a7e8147534', 
+        network: networks
+    }
+}
+
+if ( config[networks] === undefined ) throw 'network error default testnet [mainnet | testnet]'
+// test
+// const contractAddress = '0x1864f84e43980a77d1d9021dc983d4dc31acbadc'
+// const network = 'testnet'
+// const Abi = meerDestroyAbi
+
+// mainnet
+// const contractAddress = '0x29adb870085c5b9734947465c551c5a7e8147534'
+// const network = 'mainnet'
+// const Abi = meerDestroyAbi
+
+const { Abi, contractAddress, network } = config[networks]
 
 const MeerDestroy = new meerDestroy({ Abi, contractAddress, network })
 
@@ -11,6 +36,10 @@ const token = '0x01e899e6bc56aac01760e3aa092129cc0beec25f'
 const tokenAbi = require('../src/contractsABI/Token')
 
 const tokenTest = new meerDestroy({ Abi:tokenAbi, contractAddress:token, network })
+
+
+// 0x58c69ed6cd6887c0225D1FcCEcC055127843c69b](https://etherscan.io/address/0x58c69ed6cd6887c0225d1fccecc055127843c69b)
+// * destroy contract address: [0x29adb870085c5b9734947465c551c5a7e8147534](https://etherscan.io/address/0x29adb870085c5b9734947465c551c5a7e8147534)
 
 console.log(
     // MeerDestroy.getPastEvents,
