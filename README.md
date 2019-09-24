@@ -93,4 +93,4 @@ function confirmTxid( address _sender, bytes32 txId, uint256 meerNum ) public on
 
 * network: main;
 * token: [0x58c69ed6cd6887c0225D1FcCEcC055127843c69b](https://etherscan.io/address/0x58c69ed6cd6887c0225d1fccecc055127843c69b)
-* destroy contract address: [0x29adb870085c5b9734947465c551c5a7e8147534](https://etherscan.io/address/0x29adb870085c5b9734947465c551c5a7e8147534)
+* destroy contract address: [0x126720EC10F5aFbf2184146621F183CAE317F573](https://etherscan.io/address/0x126720EC10F5aFbf2184146621F183CAE317F573)
