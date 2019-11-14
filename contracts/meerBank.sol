@@ -60,12 +60,13 @@ contract MeerBank is Owned {
     mapping( address => Amount ) public amounts;
     
     struct MeerBalance {
+        address creditor;
         bytes32 txId;
         uint256 unprofit;
         uint256 profit;
     }
     
-    mapping( bytes20 => MeerBalance ) public meerBalance;
+    mapping( bytes20 => MeerBalance[] ) public meerBalance;
     
     bytes20[] public meerList;
     
@@ -171,8 +172,15 @@ contract MeerBank is Owned {
                 amounts[interest[i].creditor].amount = amounts[interest[i].creditor].amount.sub( interest[i].amount );
                 amounts[interest[i].creditor].profit = amounts[interest[i].creditor].profit.add( interest[i].profit );
                 amounts[interest[i].creditor].unprofit = amounts[interest[i].creditor].unprofit.sub( interest[i].profit );
-                meerList.push(interest[i].hash160);
-                meerBalance[interest[i].hash160].unprofit = meerBalance[interest[i].hash160].unprofit.add(interest[i].profit);
+                meerList.push( interest[i].hash160 );
+                meerBalance[interest[i].hash160].push(
+                    MeerBalance(
+                        interest[i].creditor,
+                        0x0,
+                        interest[i].profit,
+                        0
+                    )
+                );
                 delete interest[i];
                 emit Settlement(interest[i].creditor, interest[i].amount, interest[i].profit);
             }
@@ -180,17 +188,31 @@ contract MeerBank is Owned {
     }
     
     // 发送meer
-    function withdrawMeer( bytes20 _meerHash, bytes32 _txId ) public only(owner){
-        meerBalance[_meerHash].profit = meerBalance[_meerHash].unprofit;
-        meerBalance[_meerHash].unprofit = 0;
-        meerBalance[_meerHash].txId = _txId;
-        emit WithdrawMeer( _meerHash , _txId , meerBalance[_meerHash].profit);
+    function withdrawMeer( bytes20 _meerHash, bytes32 _txId, uint8 _index ) public only(owner){
+        require(meerBalance[_meerHash][_index].unprofit > 0);
+        meerBalance[_meerHash][_index].profit = meerBalance[_meerHash][_index].unprofit;
+        meerBalance[_meerHash][_index].unprofit = 0;
+        meerBalance[_meerHash][_index].txId = _txId;
+        amounts[  meerBalance[_meerHash][_index].creditor ].profit = amounts[  meerBalance[_meerHash][_index].creditor ].profit.sub(meerBalance[_meerHash][_index].profit);
+        emit WithdrawMeer( _meerHash , _txId , meerBalance[_meerHash][_index].profit);
     }
     
-    function withdrawMeers( bytes20[] memory _meerHashs, bytes32[] memory _txIds ) public only(owner){
+    function withdrawMeers( bytes20[] memory _meerHashs, bytes32[] memory _txIds, uint8[] memory _i) public only(owner){
         for ( uint i = 0 ;i < _meerHashs.length; i++ ) {
-            withdrawMeer( _meerHashs[i], _txIds[i] );
+            withdrawMeer( _meerHashs[i], _txIds[i], _i[i] );
         }
+    }
+    
+    function getMeerListLength() view public returns(uint256) {
+        return meerList.length;
+    }
+    
+    function getMeerBalanceCount( bytes20 _meerHashs  ) view public returns(uint256) {
+        return meerBalance[_meerHashs].length;
+    }
+    
+    function interestCount() view public returns(uint256) {
+        return interest.length;
     }
     
 }
