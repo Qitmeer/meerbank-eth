@@ -35,169 +35,162 @@ contract Owned {
 }
 
 
-contract Token is Owned {
+contract MeerBank is Owned {
     
     using SafeMath for uint;
-
-    mapping (address => uint) balances;
-    mapping (address => mapping (address => uint)) allowed;
-    string public name;
-    string public symbol;
-    uint256 public decimals;
-    uint public totalSupply;
-
-    event Transfer(address indexed _from, address indexed _to, uint _value);
-    event Approval(address indexed _owner, address indexed _spender, uint _value);
-
-    function transfer(address _to, uint _value) public returns (bool success) {
-        require(_to != address(0));
-        balances[msg.sender] = balances[msg.sender].sub(_value);
-        balances[_to] = balances[_to].add(_value);
-        emit Transfer(msg.sender, _to, _value);
-        return true;
-    }
-
-    function transferFrom(address _from, address _to, uint _value) public returns (bool success) {
-        require(_to != address(0));
-        balances[_from] = balances[_from].sub(_value);
-        balances[_to] = balances[_to].add(_value);
-        allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_value);
-        emit Transfer(_from, _to, _value);
-        return true;
-    }
-
-    function balanceOf(address _owner) public view returns (uint balance) {
-        return balances[_owner];
-    }
-
-    function approve_fixed(address _spender, uint _currentValue, uint _value) public returns (bool success) {
-        if(allowed[msg.sender][_spender] == _currentValue){
-            allowed[msg.sender][_spender] = _value;
-            emit Approval(msg.sender, _spender, _value);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    function approve(address _spender, uint _value) public returns (bool success) {
-        allowed[msg.sender][_spender] = _value;
-        emit Approval(msg.sender, _spender, _value);
-        return true;
-    }
-
-    function allowance(address _owner, address _spender) public view returns (uint remaining) {
-        return allowed[_owner][_spender];
-    }
-
-    function mint(address _to, uint _amount) public only(owner) returns(bool) {
-        totalSupply = totalSupply.add(_amount);
-        balances[_to] = balances[_to].add(_amount);
-        emit Transfer(msg.sender, _to, _amount);
-        return true;
-    }
-
-}
-
-
-contract MeerBank is Token {
     
-    struct OrderList {
-        address token;
-        uint256 createdAt;
-        uint256 balance;
-        uint256 interest;
-        uint256 cycle;
-    }
+    address public token;
+    bool public open = false; 
     
     struct Interest {
-        uint256 inter;
-        TokenType open;
-        uint256 decimals;
-        uint256 minAmount;
-        uint256 cycle;
+        address creditor;
+        uint256 amount;
+        uint256 unlockTime;
+        uint256 startTime;
+        uint256 profit;
+        bytes20 hash160;
     }
     
-    enum TokenType { close, open }
-    
-    mapping(address => OrderList[]) public orderList;
-    mapping(address => Interest) public interest;
-    
-    constructor () public {
-        name = 'hlc-interest';
-        symbol = 'ihlc';
-        decimals = 18;
+    struct Amount {
+        uint256 amount;
+        uint256 unprofit;
+        uint256 profit;
     }
     
-    event Redemption(address _creditor, address _token, uint256 _value);
-    event Pledge(address token, address _creditor, uint256 _value);
+    mapping( address => Amount ) public amounts;
     
-    function pledge( address _creditor, uint256 _value, address _token  ) public onlyOwner( _creditor ) {
-        require(interest[_token].open == TokenType.open);
-        require(interest[_token].minAmount <= _value);
-        require(ERC20(_token).transferFrom( _creditor, address(this), _value), 'transferFrom erro');
-        orderList[_creditor].push(
-            OrderList(
-                _token,
-                now,
+    struct MeerBalance {
+        bytes32 txId;
+        uint256 unprofit;
+        uint256 profit;
+    }
+    
+    mapping( bytes20 => MeerBalance ) public meerBalance;
+    
+    bytes20[] public meerList;
+    
+    // 债权人列表
+    Interest[] public interest;
+    
+    // 利息列表
+    uint256[2][] public interestList;
+    
+    // event Redemption(address _creditor, address _token, uint256 _value);
+    event Pledge( address creditor, uint256 value, uint256 startTime, uint256 lockTime, uint256 profit, bytes20 hash160 );
+    event Settlement( address creditor, uint256 value, uint256 profit);
+    event WithdrawMeer( bytes20 meerHash , bytes32 txId , uint256 profit);
+    
+    constructor ( address _token ) public {
+        token = _token;
+    }
+    
+    // 控制开关
+    function switchs( bool _open ) public only(owner) {
+        open  = _open;
+    }
+    
+    // 设置 利息和天数，利息单位 1%%
+    function setInterest( uint256 _days, uint256 _interest  ) public only(owner) returns(uint256) {
+        uint256 time =  _days * 1 days;
+        for( uint i = 0; i < interestList.length; i++ ) {
+            if ( interestList[i][0] == time ) {
+                return interestList[i][1] = _interest;
+            }
+        }
+        interestList.push([ time, _interest ]);
+        return _interest;
+    }
+    
+    function getInterest( ) view public returns(uint256[2][] memory) {
+        return interestList; 
+    }
+    
+    function getInterestByDays( uint256 _days ) view public returns(uint256) {
+        uint256 _interest = 0;
+        uint256 time =  _days * 1 days;
+        for( uint i = 0; i < interestList.length; i++ ) {
+            if ( interestList[i][0] == time ) {
+                return interestList[i][1];
+            }
+        }
+        return _interest;
+    }
+    
+    // 自助模式
+    function pledgeBatchByUser(  uint256 _value, uint256 _days, bytes20 _hash160 ) public {
+        require( open == true );
+        require( _days != 0 );
+        uint256 _yield = getInterestByDays( _days );
+        require( _yield != 0 );
+        require(ERC20(token).transferFrom( msg.sender, address(this), _value), 'transferFrom erro');
+        _yield = _yield.mul(_value).div(10000);
+        uint256 _startTime = now;
+        uint256 _unlockTime =  _startTime.add(_days * 1 days);
+        interest.push(
+            Interest(
+                msg.sender,
                 _value,
-                interest[_token].inter,
-                interest[_token].cycle
+                _unlockTime,
+                _startTime,
+                _yield,
+                _hash160
             )
         );
-        emit Pledge( _token, _creditor, _value);
+        amounts[msg.sender].amount = amounts[msg.sender].amount.add( _value );
+        amounts[msg.sender].unprofit = amounts[msg.sender].unprofit.add( _yield );
+        emit Pledge( msg.sender, _value, _startTime, _unlockTime, _yield, _hash160 );
     }
     
-    function pledgeBatch( address[] memory _creditor, uint256[] memory _value, address[] memory _token ) public only(owner){
-        for ( uint i =0 ;i < _creditor.length; i++ ) {
-            pledge( _creditor[i], _value[i], _token[i]  );
+    // 代理模式
+    function pledgeBatchByOwner( address _creditor,  uint256 _value, uint256 _days, uint256 _interest, bytes20 _hash160  ) public only(owner) {
+        require( open == true );
+        require(ERC20(token).transferFrom( msg.sender, address(this), _value), 'transferFrom erro');
+        uint256 _yield = _interest.mul(_value).div(10000);
+        uint256 _startTime = now;
+        uint256 _unlockTime =  _startTime.add(_days * 1 days);
+        interest.push(
+            Interest(
+                _creditor,
+                _value,
+                _unlockTime,
+                _startTime,
+                _yield,
+                _hash160
+            )
+        );
+        amounts[_creditor].amount = amounts[_creditor].amount.add( _value );
+        amounts[_creditor].unprofit = amounts[_creditor].unprofit.add( _yield );
+        emit Pledge( _creditor, _value, _startTime, _unlockTime, _yield, _hash160 );
+    }
+    
+    // 结算 并退还 hlc
+    function settlement( uint256 _stopTime ) public only(owner){
+        for ( uint i = 0 ; i < interest.length; i++ ) {
+            if ( interest[i].profit > 0 && interest[i].unlockTime >= _stopTime && interest[i].unlockTime < _stopTime.add(1 days) ){
+                require(ERC20(token).transfer( interest[i].creditor, interest[i].amount), 'transferFrom erro');
+                amounts[interest[i].creditor].amount = amounts[interest[i].creditor].amount.sub( interest[i].amount );
+                amounts[interest[i].creditor].profit = amounts[interest[i].creditor].profit.add( interest[i].profit );
+                amounts[interest[i].creditor].unprofit = amounts[interest[i].creditor].unprofit.sub( interest[i].profit );
+                meerList.push(interest[i].hash160);
+                meerBalance[interest[i].hash160].unprofit = meerBalance[interest[i].hash160].unprofit.add(interest[i].profit);
+                delete interest[i];
+                emit Settlement(interest[i].creditor, interest[i].amount, interest[i].profit);
+            }
         }
     }
     
-    function redemption( address _creditor, uint256 _id ) public onlyOwner( _creditor ) {
-        OrderList memory order = orderList[_creditor][_id];
-        require(order.balance > 0, 'balance low');
-        require(now > order.createdAt.add(order.cycle));
-        settlement( _creditor, _id );
-        ERC20(order.token).transfer(_creditor, order.balance);
-        delete orderList[_creditor][_id];
-        emit Redemption( _creditor, order.token, order.balance);
+    // 发送meer
+    function withdrawMeer( bytes20 _meerHash, bytes32 _txId ) public only(owner){
+        meerBalance[_meerHash].profit = meerBalance[_meerHash].unprofit;
+        meerBalance[_meerHash].unprofit = 0;
+        meerBalance[_meerHash].txId = _txId;
+        emit WithdrawMeer( _meerHash , _txId , meerBalance[_meerHash].profit);
     }
     
-    function redemptionBatch( address[] memory _creditor, uint256[] memory _id ) public only(owner){
-        for ( uint i =0 ;i < _creditor.length; i++ ) {
-            redemption( _creditor[i], _id[i]  );
+    function withdrawMeers( bytes20[] memory _meerHashs, bytes32[] memory _txIds ) public only(owner){
+        for ( uint i = 0 ;i < _meerHashs.length; i++ ) {
+            withdrawMeer( _meerHashs[i], _txIds[i] );
         }
     }
     
-    function settlement( address _creditor, uint256 _id ) internal {
-        uint256 meer = calculatingInterest( _creditor, _id );
-        require( meer > 0);
-        totalSupply = totalSupply.add(meer);
-        balances[_creditor] = balances[_creditor].add(meer);
-    }
-    
-    
-    event LogsNum( string s, uint u);
-    function setInterest( address _token, uint256 inters, TokenType _open, uint256 minAmount, uint256 cycle, uint256 _decimals ) public only(owner) {
-        interest[_token].inter = inters;
-        interest[_token].open = _open;
-        interest[_token].decimals = _decimals;
-        interest[_token].minAmount = minAmount;
-        interest[_token].cycle = cycle;
-    }
-    
-    function calculatingInterest( address _creditor, uint256 _id ) view public returns( uint256 ) {
-        OrderList memory order = orderList[_creditor][_id];
-        Interest memory token = interest[order.token];
-        uint256 inters = 0;
-        if ( now > order.createdAt.add(order.cycle))
-            inters = order.interest;
-        uint256 Meer = order.balance.mul(inters).mul(10**decimals).div(10**token.decimals).div(10000);
-        return Meer;
-    }
-    
-    function countOrder( address _creditor ) view public returns(uint256) {
-        return orderList[_creditor].length;
-    }
 }
