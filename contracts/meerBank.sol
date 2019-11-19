@@ -145,7 +145,7 @@ contract MeerBank is Owned {
     // 代理模式
     function pledgeBatchByOwner( address _creditor,  uint256 _value, uint256 _days, uint256 _interest, bytes20 _hash160  ) public only(owner) {
         require( open == true );
-        require(ERC20(token).transferFrom( msg.sender, address(this), _value), 'transferFrom erro');
+        require(ERC20(token).transferFrom( _creditor, address(this), _value), 'transferFrom erro');
         uint256 _yield = _interest.mul(_value).div(10000);
         uint256 _startTime = now;
         uint256 _unlockTime =  _startTime.add(_days * 1 days);
