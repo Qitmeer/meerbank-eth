@@ -77,8 +77,8 @@ contract MeerBank is Owned {
     uint256[2][] public interestList;
     
     // event Redemption(address _creditor, address _token, uint256 _value);
-    event Pledge( address creditor, uint256 value, uint256 startTime, uint256 lockTime, uint256 profit, bytes20 hash160 );
-    event Settlement( address creditor, uint256 value, uint256 profit);
+    event Pledge( address indexed creditor, uint256 value, uint256 startTime, uint256 lockTime, uint256 profit, bytes20 hash160 );
+    event Settlement( address indexed creditor, uint256 value, uint256 profit);
     event WithdrawMeer( bytes20 meerHash , bytes32 txId , uint256 profit);
     
     constructor ( address _token ) public {
