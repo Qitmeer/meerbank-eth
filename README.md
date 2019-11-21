@@ -102,4 +102,4 @@ function confirmTxid( address _sender, bytes32 txId, uint256 meerNum ) public on
 
 * network: ropsten;
 * test token: [0x84F274225D7Db9DD868AB1D905173Bb7990BCD0f](https://ropsten.etherscan.io/address/0x84F274225D7Db9DD868AB1D905173Bb7990BCD0f)
-* test bank contract address: [0x0B9c7981189D175B184a851310bD5cEa3DAa7107](https://ropsten.etherscan.io/address/0x0B9c7981189D175B184a851310bD5cEa3DAa7107)
+* test bank contract address: [0x6C4AeE8bA5917ED87b2eab9BE01a56AF94707138](https://ropsten.etherscan.io/address/0x6C4AeE8bA5917ED87b2eab9BE01a56AF94707138)
