@@ -181,8 +181,8 @@ contract MeerBank is Owned {
                         0
                     )
                 );
-                delete interest[i];
                 emit Settlement(interest[i].creditor, interest[i].amount, interest[i].profit, interest[i].unlockTime);
+                delete interest[i];
             }
         }
     }
